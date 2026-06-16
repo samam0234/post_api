@@ -1,0 +1,146 @@
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C 확장 모듈
+*.so
+
+# =========================
+# Virtual Environment
+# =========================
+venv/
+.venv/
+env/
+ENV/
+
+# =========================
+# Environment Variables
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+# IDE
+# =========================
+
+# VSCode
+.vscode/
+
+# PyCharm
+.idea/
+
+# =========================
+# OS Files
+# =========================
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# MacOS
+.DS_Store
+
+# =========================
+# Logs
+# =========================
+logs/
+*.log
+
+# =========================
+# Testing
+# =========================
+.pytest_cache/
+.coverage
+htmlcov/
+
+# =========================
+# Type Checking
+# =========================
+.mypy_cache/
+.pyre/
+.pytype/
+
+# =========================
+# Lint
+# =========================
+.ruff_cache/
+
+# =========================
+# Jupyter Notebook
+# =========================
+.ipynb_checkpoints/
+
+# =========================
+# Build
+# =========================
+build/
+dist/
+*.egg-info/
+
+# =========================
+# FastAPI
+# =========================
+.fastapi/
+
+# =========================
+# SQLAlchemy / SQLite
+# =========================
+*.db
+*.sqlite
+*.sqlite3
+
+# =========================
+# Alembic
+# =========================
+alembic.ini.bak
+
+# Alembic 버전 파일은 보통 관리함
+# alembic/versions/
+
+# =========================
+# Upload Files
+# =========================
+uploads/
+temp/
+tmp/
+
+# =========================
+# Generated Files
+# =========================
+generated/
+output/
+outputs/
+
+# =========================
+# OpenAI
+# =========================
+openai_api_key.txt
+secrets.json
+
+# =========================
+# Cache
+# =========================
+.cache/
+
+# =========================
+# Coverage
+# =========================
+coverage.xml
+
+# =========================
+# Docker
+# =========================
+*.pid
+
+# Docker Compose Override
+docker-compose.override.yml
+
+# =========================
+# Local Config
+# =========================
+config.local.py
+settings.local.py
