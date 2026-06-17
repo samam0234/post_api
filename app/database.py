@@ -43,7 +43,7 @@ def get_db() -> Generator[Session, None, None] :
         yield db    # 여기에서 db 연결 객체를 라우터 함수에 전달(양보)
     finally :
         # 라우터 함수에서 요청 처리가 끝나면 무조건 세션 종료
-        db.close()
+        db.close()      # 커넥션 풀에 반환
 
 def check_db_connection() :
     """
