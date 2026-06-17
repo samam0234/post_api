@@ -1,0 +1,27 @@
+# ============================================================
+# 파일 위치: board_api/app/schemas/post.py
+# 역할: API의 입출력 데이터 구조를 정의합니다.
+#       DB 모델과 분리함으로써 API 응답 형태를 독립적으로 관리합니다.
+# ============================================================
+
+from pydantic import BaseModel, Field
+from typing import List, Optional
+from datetime import datetime
+
+class PostCreate(BaseModel) :
+    """
+    게시글 글 작성 요청 스키마 (body)
+    """
+    title:str = Field(..., min_length=1, max_length=200, description="글 제목")
+    content:str = Field(..., min_length=1, description="본문")
+    author:str = Field(..., min_length=1, max_length=12, description="작성자")
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "title": "FastAPI MVC 게시판",
+                "content": "Repository, Service, Router로 분리해 작성합니다.",
+                "author": "홍길동"
+            }
+        }
+    }
