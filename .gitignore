@@ -144,3 +144,5 @@ docker-compose.override.yml
 # =========================
 config.local.py
 settings.local.py
+
+mcps
