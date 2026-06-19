@@ -27,7 +27,7 @@ class PostCreate(BaseModel) :
     }
 
 class PostDetail(BaseModel):
-    """상세 조회 응답 (본문 포함)"""
+    """상세 조회 응답 (본문 포함) - 게시글 한건에 의한 응답"""
     id:         int
     title:      str
     content:    str
