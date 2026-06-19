@@ -32,3 +32,9 @@ class PostRepository :
         self.db.commit()        # 데이터베이스에 영구 반영
         self.db.refresh(post)   # id가 존재하는 post 객체
         return post
+    
+    def get_by_id(self, id:int) -> Optional[Post] :
+        """
+            id로 게시글 단건 조회, 없으면 None 반환
+        """
+        return self.db.get(Post, id)
