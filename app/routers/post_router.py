@@ -16,7 +16,7 @@ from app.services.post_service import PostService
 router = APIRouter(prefix="/posts", tags=["게시판"])
 
 # Service 객체를 Depends로 주입하기 위해 생생한 함수
-def get_post_sevice(db:Session = Depends(get_db)) -> PostService :
+def get_post_service(db:Session = Depends(get_db)) -> PostService :
     """
     DB 세션을 받아 PostService 인스턴스(객체)를 생성합니다.
     (서비스단에 DB세션을 넘겨주는 이유 : 서비스 객체가 트랜잭션 처리의 주체이기 때문이다.)
@@ -30,7 +30,15 @@ def get_post_sevice(db:Session = Depends(get_db)) -> PostService :
 @router.post("", response_model=PostDetail, status_code=201, summary="게시글 등록")
 def create_post(
     data:PostCreate,
-    service:PostService = Depends(get_post_sevice)
+    service:PostService = Depends(get_post_service)
 ) :
     postDetail =service.create_post(data)   # 서비스단의 create_post() 호출
     return postDetail
+
+
+@router.get("/{id}", response_model=PostDetail, summary="게시글 상세 조회")
+def get_post(
+    id:int=Path(..., ge=1),
+    service:PostService=Depends(get_post_service)
+) :
+    return service.get_post_detail(id)
