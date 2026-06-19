@@ -50,4 +50,4 @@ def get_post(
 def get_list(
   service:PostService=Depends(get_post_service)
 ) :
-  service.get_list()
+  return service.get_list()
