@@ -47,3 +47,9 @@ class PostRepository :
         self.db.commit()    # update 실행, db에 반영
         self.db.refresh(post)
         return post
+    
+    def get_post_list(self) -> List[Post] :
+        """
+            게시글 전체 목록을 반환
+        """
+        return self.db.query(Post).all()
