@@ -48,6 +48,8 @@ def get_post(
 
 @router.get("", response_model=PostListResponse, summary="게시글 전체 조회")
 def get_list(
+  page:int = Query(1, ge=1, description="페이지번호"),
+  per_page:int = Query(10, ge=10, le=100, description="페이지당 항목 수"),
   service:PostService=Depends(get_post_service)
 ) :
-  return service.get_list()
+  return service.get_list(page, per_page)
