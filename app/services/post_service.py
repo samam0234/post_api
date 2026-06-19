@@ -14,21 +14,41 @@ from app.schemas.post_schema import PostCreate, PostDetail
 from app.repositories.post_repository import PostRepository
 
 class PostService :
-    def __init__(self, db:Session):
-        self.db = db
-        self.repo = PostRepository(db)  # repo 멤버변에 PostRepository객체 주입
+  
+  def __init__(self, db:Session):
+    self.db = db
+    self.repo = PostRepository(db)  # repo 멤버변수에 PostRepository 객체 주입
+  
+  def _get_or_404(self, id:int) :
+    """
+        게시글을 조회하고 없으면 404 예외를 발생시킵니다.
+        여러 메서드(조회, 수정, 삭제, 댓글 등)에서 공통으로 사용하는 검증 로직입니다.
+    """
+    post = self.repo.get_by_id(id)
+    if not post :
+      raise HTTPException(status_code=404, detail="게시글을 찾을 수 없습니다.")
     
-    def create_post(self, data:PostCreate) -> PostDetail :
-        """
-            게시글 등록을 처리하는 서비스 함수
-        """
-        post = self.repo.insert(title=data.title, content=data.content, author=data.author)
-        print(f"저장된 데이터 : {post.id}")
-
-        # post객체가 PostDetail(Pydantic 객체)에 유효하지 검증한뒤 통과한뒤 PostDetail 객체 반환
-        return PostDetail.model_validate(post)
-
-    def read_post() :
-        """
-            게시글을 조회하는 서비스 함수
-        """
+    return post
+  
+  def create_post(self, data:PostCreate) -> PostDetail :
+    """
+      게시글 등록을 처리하는 서비스 함수
+    """
+    post = self.repo.insert(title=data.title, content=data.content, author=data.author)
+    print(f"저장된 게시글 : {post.id}")
+    # post 객체가 PostDetail(Pydantic 객체)에 유효한지 검증한 뒤 통과되면 PostDetail 객체 반환.(검증 안되면 예외)
+    return PostDetail.model_validate(post)
+    
+    
+  def get_post_detail(self, id) -> PostDetail :
+    """
+      게시글을 조회하는 서비스 함수,
+      해당 게시글의 조회수를 1 증가 하자.
+      select + update 문이 하나의 db 세션에 의해 처리되었다. => 트랜잭션 처리
+    """
+    print(f"{id}번 글을 조회하자!!!!!!!!")
+    
+    post = self._get_or_404(id) # id번 글 조회
+    post = self.repo.increament_view_count(post)  # 조회수 증가
+    
+    return PostDetail.model_validate(post)
