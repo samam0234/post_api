@@ -47,11 +47,7 @@ class PostDetail(BaseModel):
     updated_at: datetime
     model_config = {"from_attributes": True}    # 위 속성(attributes)들을 json구조로 출력함
 
-class PostListResponse(BaseModel) :
-    """
-        PostItem의 리스트 형태 (게시글 전체 조회시 실제 반환되는 json)
-    """
-    posts : List[PostItem]
+
 
 # 페이징 처리에 필요한 스키마
 class PagingInfo(BaseModel) :
@@ -68,3 +64,10 @@ class PagingInfo(BaseModel) :
     per_page:int        # 페이지당 항목 수
     has_prev:bool       # 이전 페이지 존재 여부
     has_next:bool       # 다음 페이지 존재 여부
+
+class PostListResponse(BaseModel) :
+    """
+        PostItem의 리스트 형태 (게시글 전체 조회시 실제 반환되는 json)
+    """
+    posts : List[PostItem]
+    page_info:PagingInfo
