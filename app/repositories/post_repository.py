@@ -48,18 +48,44 @@ class PostRepository :
         self.db.refresh(post)
         return post
     
-    def get_post_list(self, offset:int = 0, limit:int = 10) -> List[Post] :
+    def get_post_list(self, offset:int = 0, limit:int = 10,
+                      search:Optional[str] = None, author:Optional[str] = None, order_by:str = "latest"
+                      ) -> List[Post] :
         """
             게시글 전체 목록을 반환
             페이징(offset, limit는 service단에서 계산된 값을 받아서) 처리
         """
         query = self.db.query(Post)     # "select * from post;" 쿼리문 자체
+        
+        # 검색어 조건문
+
+        if search : # 제목 검색어가 있다면
+            # LIKE '%검색어%'
+            query.filter(Post.title.like(f"%{search}%"))
+
+        if author : # 작성자 검색어가 있다면
+            query.filter(Post.author == author)
+        
+        if order_by == "views" : # 정렬 조건이 조회수 순일때
+            query = query.order_by(Post.view_count.desc())
+        else :
+            query = query.order_by(Post.created_at.desc())      # 작성일 최신순(default)
+
         # "limit 옵셋, 페이지당 출력될 행의 수"를 붙여 실행하여 반환
         return query.offset(offset=offset).limit(limit=limit).all() 
 
-    def get_posts_count(self) -> int :
+    def get_posts_count(self, search:Optional[str]=None, author:Optional[str]=None) -> int :
         """
             게시글의 전페 row수를 반환
+            search, author 가 있으면 그 값에 따라 조회된 row수 반환
         """
-        count = self.db.query(func.count(Post.id))
-        return count.scalar()
+        query = self.db.query(func.count(Post.id))  # 전체 글 수
+
+        if search : # 제목 검색어가 있다면
+            # LIKE '%검색어%'
+            query = query.filter(Post.title.like(f"%{search}%"))
+
+        if author : # 작성자 검색어가 있다면
+            query = query.filter(Post.author == author)
+
+        return query.scalar()

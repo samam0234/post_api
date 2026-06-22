@@ -70,21 +70,26 @@ class PostService :
     
     return PostDetail.model_validate(post)
   
-  def get_list(self, page:int, per_page:int) -> PostListResponse :
+  def get_list(self, page:int, per_page:int,
+               search:Optional[str], author:Optional[str], order_by:str
+               ) -> PostListResponse :
     """
         게시글 전체 조회
-        페이징 처리를 위해 router단에서 page(현재 페이지 번호), per_page(페이지당 보여줄 글의 갯수)를 넘겨받음.
+        - 페이징 처리를 위해 router단에서 page(현재 페이지 번호), per_page(페이지당 보여줄 글의 갯수)를 넘겨받음.
+        - 검색어와 정렬 처리
     """
     # 1. 전체 데이터 수 조회(페이징 계산용)
-    count = self.repo.get_posts_count()
+    count = self.repo.get_posts_count(search, author)
 
     # 2. offset 계산
     # (현재페이지번호 - 1) * 페이지당 보여줄 글의 갯수
     offset = (page - 1) * per_page
 
-    # 3. 페이징 된 게시글 목록 조회
+    # 3. 페이징 된 게시글 목록 조회 - repository단 호출
     posts = self.repo.get_post_list(
-      offset=offset, limit=per_page
+      offset=offset, limit=per_page,
+      search=search, author=author,
+      order_by=order_by
     ) # List[Post] 타입 반환
     
     # Repository단에서 반환되는 List[Post]는 Post객체를 List[]에 감싼 타입이다. (json이 아님) => ORM에서 반환되는 기본값
