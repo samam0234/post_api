@@ -52,3 +52,19 @@ class PostListResponse(BaseModel) :
         PostItem의 리스트 형태 (게시글 전체 조회시 실제 반환되는 json)
     """
     posts : List[PostItem]
+
+# 페이징 처리에 필요한 스키마
+class PagingInfo(BaseModel) :
+    """
+        프론트 단에서 페이징 처리를 할 때 필요한 모든 정보
+        React에서 이 정보로 페이지 버튼을 렌더링합니다:
+        {has_prev && <button>이전</button>}
+        <span>{page} / {total_pages}</span>
+        {has_next && <button>다음</button>}
+    """
+    total : int         # 전체 게시글 수
+    total_pages : int   # 전체 페이지 수
+    page:int            # 현재 페이지
+    per_page:int        # 페이지당 항목 수
+    has_prev:bool       # 이전 페이지 존재 여부
+    has_next:bool       # 다음 페이지 존재 여부
