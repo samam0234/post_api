@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from typing import Optional
 
 from app.database import get_db
-from app.schemas.post_schema import PostCreate, PostDetail, PostItem, PostListResponse
+from app.schemas.post_schema import PostCreate, PostDetail, PostListResponse, PostUpdate
 from app.services.post_service import PostService
 
 router = APIRouter(prefix="/posts", tags=["게시판"])
@@ -56,6 +56,14 @@ def get_list(
   service:PostService=Depends(get_post_service)
 ) :
   return service.get_list(page, per_page, search, author, order_by)
+
+@router.put("/{id}", response_model=PostDetail, summary="게시글 수정")
+def update_post(
+  id:int = Path(..., ge=1),
+  data:PostUpdate = ...,
+  service:PostService = Depends(get_post_service)
+) :
+    return service.Update_post(id, data=data)
 
 @router.delete("/{id}", status_code=204, summary="게시글 삭제")
 def delete_post(
