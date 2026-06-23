@@ -98,3 +98,8 @@ class PostService :
       posts = [PostItem.model_validate(p) for p in posts],
       page_info=self._make_page_info(count, page, per_page)
       )
+  
+  # ── 게시글 삭제 ───────────────────────────────────────────
+  def delete_post(self, id: int) -> None:
+      post = self._get_or_404(id)
+      self.repo.delete(post)

@@ -89,3 +89,8 @@ class PostRepository :
             query = query.filter(Post.author == author)
 
         return query.scalar()
+    
+    def delete(self, post: Post) -> None:
+        """게시글을 삭제합니다."""
+        self.db.delete(post)
+        self.db.commit()

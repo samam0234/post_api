@@ -56,3 +56,11 @@ def get_list(
   service:PostService=Depends(get_post_service)
 ) :
   return service.get_list(page, per_page, search, author, order_by)
+
+@router.delete("/{id}", status_code=204, summary="게시글 삭제")
+def delete_post(
+    id: int = Path(..., ge=1), # 삭제할 게시글 번호
+    service: PostService = Depends(get_post_service),
+):
+    service.delete_post(id)
+
