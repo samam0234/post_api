@@ -26,6 +26,14 @@ class PostCreate(BaseModel) :
         }
     }
 
+# 게시글 수정용 request 스키마
+class PostUpdate(BaseModel) :
+    """
+    PUT /post/{id} 요청 body(json data) - 수정될 필드만 전송
+    """
+    title:Optional[str] = Field(None, min_length=1, max_length=200, description="글 제목")
+    content:Optional[str] = Field(None, min_length=1, description="글 본문")
+
 class PostItem(BaseModel) :
     """목록 조회 응답 - 게시글 전체 조회용"""
     id:         int
