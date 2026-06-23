@@ -19,7 +19,7 @@ async def lifespan(app:FastAPI) :
     """
     check_db_connection()
     Base.metadata.create_all(bind=engine)   # 없는 테이블 모두 생성. 있으면 pass
-    # print(f"DB")
+    # print(f"DB URL {engine.url}")
     # print(Base.metadata.tables)
     print("테이블 준비 OK")
     yield
