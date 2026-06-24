@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from typing import Optional
 
 from app.database import get_db
-from app.schemas.post_schema import PostCreate, PostDetail, PostListResponse, PostUpdate
+from app.schemas.post_schema import PostCreate, PostDetail, PostListResponse, PostUpdate, PostCreateWithAttachment, PostDetailWithStat
 from app.services.post_service import PostService
 
 router = APIRouter(prefix="/posts", tags=["게시판"])
@@ -72,3 +72,16 @@ def delete_post(
 ):
     service.delete_post(id)
 
+@router.post("/with-files", response_model=PostDetailWithStat, status_code=201, summary="게시글 + 통계 + 첨부파일 등록")
+def create_post_with_attachments(
+   data: PostCreateWithAttachment,
+   service: PostService = Depends(get_post_service),
+) :
+  return service.create_post_with_Attachments(data)
+
+@router.get("with-stat/{id}", response_model=PostDetailWithStat, summary="게시글상세 + 통계 + 첨부파일 조회")
+def get_post_with_stat(
+   id: int = Path(..., ge=1),
+   service: PostService = Depends(get_post_service),
+) :
+   return service.get_post_with_stat(id)

@@ -10,7 +10,7 @@ from typing import Optional
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 
-from app.schemas.post_schema import PostCreate, PostDetail, PostListResponse, PostItem, PagingInfo, PostUpdate
+from app.schemas.post_schema import PostCreate, PostDetail, PostListResponse, PostItem, PagingInfo, PostUpdate, PostCreateWithAttachment, PostDetailWithStat
 from app.repositories.post_repository import PostRepository
 
 class PostService :
@@ -109,3 +109,51 @@ class PostService :
   def delete_post(self, id: int) -> None:
       post = self._get_or_404(id)
       self.repo.delete(post)
+
+
+  def create_post_with_Attachments(
+      self, data:PostCreateWithAttachment
+  ) -> PostDetailWithStat : 
+    """
+    Post + PostStat + Attachment 를 하나의 트랜잭션으로 저장합니다.
+
+    ── 트랜잭션 책임 분담 ──────────────────────────────────
+    Repository: db.add(), db.flush()  → "저장 준비"만
+    Service:    db.commit()           → "확정 결정"
+                db.rollback()         → "취소 결정"
+    Router:     없음                  → DB 코드 전혀 없음
+    ──────────────────────────────────────────────────────
+
+    흐름:
+        1. create_post_tx()  → Post flush (post.id 확보)
+        2. create_stat()     → PostStat add (같은 트랜잭션)
+        3. create_attachments() → Attachment add (같은 트랜잭션)
+        4. commit()          → 모두 성공 → 한 번에 저장
+       또는
+        5. rollback()        → 하나라도 실패 → 전부 취소
+    """
+    try :
+      post = self.repo.create_post_tx(data.title, data.content, data.author)  # post.id
+      stat = self.repo.create_stat(post.id)
+      filenames = [att.filename for att in data.attachments]
+      self.repo.create_attachments(post.id, filenames)
+      
+      self.db.commit()
+      self.db.refresh(post)
+
+      return PostDetailWithStat.model_validate(post)
+    except HTTPException as e:
+      self.db.rollback()  #  지금까지의 모든 작업 rollback
+      raise HTTPException(
+        status_code=500,
+        detail=f"게시글 등록 중 오류가 발생했습니다 {str(e)}"
+      )
+  def get_post_with_stat(self, id:int) -> PostDetailWithStat :
+    """Post + PostStat + Attachment 조회"""
+    post = self.repo.get_with_relations(id)
+    if not post :
+      raise HTTPException(
+        status_code=500,
+        detail=f"게시글을 가져오는 중 오류가 발생 했습니다."
+      )
+    return PostDetailWithStat.model_validate(post)

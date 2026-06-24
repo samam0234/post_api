@@ -3,17 +3,92 @@
 # 역할: DB 쿼리만 작성합니다.
 #       비즈니스 로직(페이징 계산, 조회수 증가 등)은 Service에 있습니다.
 #       Service에서만 호출합니다. Router는 Repository를 직접 쓰지 않습니다.
+
+#       여러개의 관계 테이블이 있을때 트랜잭션 처리가 필요하다 하더라도,
+#       repository단에서 commit과 rollback을 절대 하지 않는다!!!!
+#       commit과 rollback을 트랜잭션의 컨트롤 타워인 [service단]에서 담당한다.
+#       Service단에서 트랜잭션을 컨트롤 하기 위해서, flush()는 해야 한다!!!!
+
 # ============================================================
 
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import Optional, List
 from datetime import datetime
-from app.models.post_model import Post
+# 관계있는 테이블을 미리 json으로 함께 가져올때 사용한다.
+# 예 : Post 조회시, PostStat, Attachment를 같이 가져올 수 있다.
+# => N + 1 문제를 줄일 수 있다.
+from sqlalchemy.orm import joinedload
+
+from app.models.post_model import Post, PostStat, Attachment
 
 class PostRepository :
     def __init__(self, db:Session):
         self.db = db
+
+    def create_post_tx(self, title:str, content:str, author:str) -> Post :
+        """
+        게시글을 생성하고 flush로 id를 확보합니다.
+        commit은 하지 않습니다.
+        commit은 Service의 책임입니다.
+        """
+        post = Post(
+            title=title, 
+            content=content, 
+            author=author,
+            view_count=0,
+            created_at=datetime.now(),
+            updated_at=datetime.now()
+        )
+
+        self.db.add(post)   # sqlAlchemy세션에 post 객체 등록
+        # insert sql이 db에 전달 되어 실행되어 id가 생성된다.
+        self.db.flush() # post.id를 사용할 수 있게 됨.
+
+        # self.db.commit()    여기에서는 금지(트랜잭션 처리)
+
+        return post
+    
+    def create_stat(self, post_id: int) -> PostStat:
+        """
+        PostStat을 생성합니다.
+        commit은 하지 않습니다 — 같은 트랜잭션에 add만 합니다.
+        """
+        stat = PostStat(post_id=post_id, like_count=0, created_at=datetime.now())
+        self.db.add(stat)
+        self.db.flush() # stat.id 사용 가능(굳이 사용할 필요가 없다.)
+        return stat
+    
+    def create_attachments(
+        self, post_id: int, filenames: list[str]
+        ) -> list[Attachment]:
+        """
+        첨부파일 목록을 생성합니다.
+        commit은 하지 않습니다 — 같은 트랜잭션에 add만 합니다.
+        """
+        attachments = []
+        for filename in filenames:
+            att = Attachment(
+                post_id=post_id, filename=filename, created_at=datetime.now()
+            )
+            self.db.add(att)
+            attachments.append(att)
+        return attachments
+
+    def get_with_relations(self, post_id:int) -> Optional[Post] :
+        """
+        Post + PostStat + Attachment 를 한 번의 JOIN 쿼리로 조회합니다.
+        joinedload → N+1 문제 방지
+        """
+        return (
+            self.db.query(Post)             # Post 객체에 대한 기본 seclect 쿼리문
+            .options(
+                joinedload(Post.stat),      # post_stat 테이블과의 join (조건)
+                joinedload(Post.attachments) # attachment 테이블과의 join (조건)
+            )
+            .filter(Post.id == post_id) # where절 (넘겨져온 게시글의 번호)
+            .first()
+        )
 
     def insert(self, title:str, content:str, author:str) -> Post : 
         """
