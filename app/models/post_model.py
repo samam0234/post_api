@@ -24,6 +24,7 @@ class Post(Base):
         comment="수정 시각"
     )
 
+    # PostStat 객체를 참조할 용도의 속성
     stat = relationship(
         "PostStat",
         back_populates="post",
@@ -31,6 +32,7 @@ class Post(Base):
         cascade="all, delete-orphan"
     ) # 이 객체가 PostStat 객체를 속성으로 가지고 있지 않으면 가지고 있지 못한다. 그러니 속성값을 가지고 있어야 한다.
 
+    # Attachment 객체를 참조할 용도의 속성
     Attachment = relationship(
         "Attachment",
         back_populates="post",
