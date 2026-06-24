@@ -80,3 +80,52 @@ class PostListResponse(BaseModel) :
     """
     posts : List[PostItem]
     page_info:PagingInfo
+
+
+# 첨부 파일 구간
+class AttachmentIn(BaseModel) : 
+    """
+    첨부파일 등록 요청
+    """
+    filename:str = Field(..., min_length=1, description="파일명") 
+
+class AttachmentOut(BaseModel):
+    """첨부파일 응답"""
+    id: int     # 첨부파일의 PK(Primary key)
+    filename: str
+    model_config = {"from_attributes": True}
+
+class PostStatOut(BaseModel):
+    """게시글 통계 응답"""
+    like_count: int
+    model_config = {"from_attributes": True}
+
+class PostCreateWithAttachment(BaseModel):
+    """게시글 + 첨부파일 동시 등록 요청"""
+    title:       str = Field(..., min_length=1, max_length=200)
+    content:     str = Field(..., min_length=1)
+    author:      str = Field(..., min_length=1, max_length=50)
+    attachments: List[AttachmentIn] = Field(
+        default=[], description="첨부파일 목록 (없으면 빈 리스트)"
+    )
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "title": "트랜잭션 테스트 게시글",
+                "content": "Post + Stat + Attachment 동시 저장합니다.",
+                "author": "홍길동",
+                "attachments": [
+                    {"filename": "보고서.pdf"},
+                    {"filename": "이미지.jpg"},
+                ]
+            }
+        }
+    }
+
+class PostDetailWithStat(BaseModel):
+    """게시글 상세 응답 (통계 + 첨부파일 포함)"""
+    id: int; title: str; content: str; author: str
+    view_count: int; created_at: datetime
+    stat:        Optional[PostStatOut]  = None
+    attachments: List[AttachmentOut]    = []
+    model_config = {"from_attributes": True}
