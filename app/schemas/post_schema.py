@@ -59,19 +59,39 @@ class PostDetail(BaseModel):
 
 # 페이징 처리에 필요한 스키마
 class PagingInfo(BaseModel) :
+    # """
+    #     프론트 단에서 페이징 처리를 할 때 필요한 모든 정보
+    #     React에서 이 정보로 페이지 버튼을 렌더링합니다:
+    #     {has_prev && <button>이전</button>}
+    #     <span>{page} / {total_pages}</span>
+    #     {has_next && <button>다음</button>}
+    # """
+    # total : int         # 전체 게시글 수
+    # total_pages : int   # 전체 페이지 수
+    # page:int            # 현재 페이지
+    # per_page:int        # 페이지당 항목 수
+    # has_prev:bool       # 이전 페이지 존재 여부
+    # has_next:bool       # 다음 페이지 존재 여부
     """
-        프론트 단에서 페이징 처리를 할 때 필요한 모든 정보
-        React에서 이 정보로 페이지 버튼을 렌더링합니다:
-        {has_prev && <button>이전</button>}
-        <span>{page} / {total_pages}</span>
-        {has_next && <button>다음</button>}
+    페이징 + 페이징 블럭 처리에 필요한 필드(속성)들
     """
-    total : int         # 전체 게시글 수
-    total_pages : int   # 전체 페이지 수
-    page:int            # 현재 페이지
-    per_page:int        # 페이지당 항목 수
-    has_prev:bool       # 이전 페이지 존재 여부
-    has_next:bool       # 다음 페이지 존재 여부
+    # 기본 페이징
+    page_no: int
+    page_size: int
+    total_post_cnt: int
+    total_page_cnt: int
+    start_row_index: int
+    
+    # 블럭 정보
+    page_cnt_per_block: int
+    total_paging_block_cnt: int
+    page_block_of_current_page: int
+    start_num_of_current_paging_block: int
+    end_num_of_current_paging_block: int
+    
+    # 이전/다음 블럭 존재 여부 (React 버튼 표시용)
+    has_prev_block: bool
+    has_next_block: bool
 
 class PostListResponse(BaseModel) :
     """
