@@ -11,6 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app import models   # noqa — Base가 Post 테이블을 인식하려면 반드시 import
 from app.models import post_model
 from app.routers.post_router import router as post_router
+from app.routers.auth_router import auth_router
 
 @asynccontextmanager
 async def lifespan(app:FastAPI) :
@@ -41,6 +42,7 @@ app.add_middleware(
 )
 
 app.include_router(post_router) # 분리된 router 모듈의 APIRouter 객체를 app에 포함
+app.include_router(auth_router) # 분리된 auth router 모듈의 APIRouter 객체를 app에 포함
 
 @app.get("/health", tags=["시스템"])
 def health():
